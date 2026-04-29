@@ -51,4 +51,4 @@ Thumbs.db
 *.tar.gz
 
 # Optional: generated laporan PDF
-docs/laporan/*.pdf
+# docs/laporan/*.pdf
