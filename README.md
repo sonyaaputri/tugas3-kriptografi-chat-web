@@ -52,4 +52,4 @@ node src/index.js
 Project masih dalam tahap pengembangan
 
 ## 📎 Catatan
-Dokumentasi lengkap dan laporan terdapat pada folder `docs/`.
+Dokumentasi lengkap dan laporan terdapat pada folder `docs/`
