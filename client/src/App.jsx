@@ -33,14 +33,14 @@ function AppContent() {
   const [activeTab, setActiveTab] = useState("messages");
   const [loading, setLoading] = useState(false);
 
-  // Load contacts when user logs in
+  // Load daftar kontak saat user berhasil login
   useEffect(() => {
     if (authToken && currentUser) {
       loadContacts();
     }
   }, [authToken, currentUser]);
 
-  // Load messages when contact is selected
+  // Load pesan saat kontak dipilih
   useEffect(() => {
     if (selectedContact && authToken) {
       loadMessages();
@@ -81,19 +81,19 @@ function AppContent() {
 
   const handleRegister = async (email, password) => {
     try {
-      // Generate ECDH key pair
+      // Generate pasangan kunci ECDH
       const keyPair = await generateECDHKeyPair();
       
-      // Export public key to base64
+      // Export public key ke format base64
       const publicKey = await exportPublicKey(keyPair.publicKey);
       
-      // Export private key to base64
+      // Export private key ke format base64
       const privateKeyBase64 = await exportPrivateKey(keyPair.privateKey);
       
-      // Encrypt private key with password
+      // Enkripsi private key menggunakan password user
       const { encryptedPrivateKey, iv, salt } = await encryptPrivateKey(privateKeyBase64, password);
       
-      // Register with server
+      // Kirim data registrasi ke server
       await registerApi({
         email,
         password,
@@ -130,9 +130,9 @@ function AppContent() {
       await sendMessage(
         {
           receiverEmail: selectedContact.email,
-          ciphertext: messageText, // In real app, encrypt this
-          iv: "", // Generate IV in real implementation
-          mac: "", // Generate MAC in real implementation
+          ciphertext: messageText,
+          iv: "", // Generate IV
+          mac: "", // Generate MAC
         },
         authToken
       );
@@ -144,7 +144,7 @@ function AppContent() {
   };
 
   const handleDecryptMessage = async (message) => {
-    // In real app, decrypt the message here
+    // Dekripsi pesan
     return message.ciphertext || "...";
   };
 

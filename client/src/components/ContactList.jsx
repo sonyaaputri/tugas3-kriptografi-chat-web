@@ -1,39 +1,14 @@
 import { useState } from 'react';
 
-/**
- * @typedef {Object} Contact
- * @property {string} email
- * @property {string} publicKey
- * @property {string} [username]
- * @property {string} [lastMessage]
- * @property {string} [lastMessageTime]
- * @property {number} [unreadCount]
- */
-
-/**
- * @typedef {Object} ContactListProps
- * @property {Contact[]} contacts
- * @property {(contact: Contact) => void} onSelectContact
- * @property {string} [selectedContactId]
- */
-
-/**
- * @param {ContactListProps} props
- */
 export function ContactList({ contacts, onSelectContact, selectedContactId }) {
   const [searchQuery, setSearchQuery] = useState('');
 
-  /**
-   * @param {string} [dateString]
-   * @returns {string}
-   */
   const formatTime = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-
     if (days === 0) {
       return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
     } else if (days === 1) {
@@ -45,79 +20,141 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
     }
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    (contact.email || contact.username || '').toLowerCase().includes(searchQuery.toLowerCase())
+  const conversationContacts = contacts.filter(c => c.lastMessage);
+
+  const filtered = conversationContacts.filter(c =>
+    (c.email || c.username || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const conversationContacts = contacts.filter(contact => contact.lastMessage);
-
   return (
-    <div className="h-full bg-white flex flex-col border-r border-gray-200">
-      <div className="p-4 border-b border-gray-200">
-        <h2 className="text-lg font-bold text-gray-900 mb-3">Messages</h2>
-        <div className="relative">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+    <div style={{
+      height: '100%',
+      background: '#FFFFFF',
+      display: 'flex',
+      flexDirection: 'column',
+      borderRight: '1px solid #E2E8F0',
+      fontFamily: "'Segoe UI', system-ui, sans-serif"
+    }}>
+      {/* Header */}
+      <div style={{ padding: '20px 16px 12px', borderBottom: '1px solid #F1F5F9' }}>
+        <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', margin: '0 0 12px 0' }}>
+          Messages
+        </h2>
+        <div style={{ position: 'relative' }}>
+          <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}
+            width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
           </svg>
           <input
             type="text"
             placeholder="Search conversations"
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm"
+            onChange={e => setSearchQuery(e.target.value)}
+            style={{
+              width: '100%',
+              padding: '9px 12px 9px 36px',
+              background: '#F1F5F9',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '14px',
+              color: '#0F172A',
+              outline: 'none',
+              boxSizing: 'border-box'
+            }}
           />
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        {conversationContacts.length === 0 ? (
-          <div className="px-6 py-16 text-center text-gray-500">
-            <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+      {/* List */}
+      <div style={{ flex: 1, overflowY: 'auto' }}>
+        {filtered.length === 0 ? (
+          <div style={{ textAlign: 'center', padding: '48px 24px', color: '#94A3B8' }}>
+            <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"
+              style={{ margin: '0 auto 12px', display: 'block', color: '#CBD5E1' }}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p className="text-sm font-medium text-gray-700">No conversations yet</p>
-            <p className="text-xs text-gray-500 mt-1">Start chatting with your contacts</p>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No conversations yet</p>
           </div>
         ) : (
-          conversationContacts
-            .filter(contact => (contact.email || contact.username || '').toLowerCase().includes(searchQuery.toLowerCase()))
-            .map((contact) => (
-            <button
-              key={contact.email}
-              onClick={() => onSelectContact(contact)}
-              className={`w-full px-4 py-3 hover:bg-gray-50 transition-all text-left ${
-                selectedContactId === contact.email ? 'bg-blue-500 hover:bg-blue-500' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3">
-                <div className="relative flex-shrink-0">
-                  <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    selectedContactId === contact.email ? 'bg-white text-blue-500' : 'bg-gray-200 text-gray-600'
-                  }`}>
-                    {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
+          filtered.map(contact => {
+            const isSelected = selectedContactId === contact.email;
+            const initial = (contact.email || contact.username || 'U').charAt(0).toUpperCase();
+
+            return (
+              <button
+                key={contact.email}
+                onClick={() => onSelectContact(contact)}
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  background: isSelected ? '#2563EB' : 'transparent',
+                  border: 'none',
+                  borderLeft: isSelected ? '3px solid #1D4ED8' : '3px solid transparent',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  textAlign: 'left',
+                  transition: 'background 0.15s',
+                }}
+                onMouseEnter={e => { if (!isSelected) e.currentTarget.style.background = '#F8FAFC'; }}
+                onMouseLeave={e => { if (!isSelected) e.currentTarget.style.background = 'transparent'; }}
+              >
+                {/* Avatar */}
+                <div style={{ position: 'relative', flexShrink: 0 }}>
+                  <div style={{
+                    width: '46px',
+                    height: '46px',
+                    borderRadius: '50%',
+                    background: isSelected ? 'rgba(255,255,255,0.25)' : '#E2E8F0',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    fontSize: '16px',
+                    fontWeight: '600',
+                    color: isSelected ? '#FFFFFF' : '#475569'
+                  }}>
+                    {initial}
                   </div>
-                  <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+                  <div style={{
+                    position: 'absolute',
+                    bottom: 1, right: 1,
+                    width: '11px', height: '11px',
+                    borderRadius: '50%',
+                    background: '#22C55E',
+                    border: '2px solid white'
+                  }} />
                 </div>
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center justify-between mb-0.5">
-                    <h3 className={`font-semibold truncate text-sm ${
-                      selectedContactId === contact.id ? 'text-white' : 'text-gray-900'
-                    }`}>{contact.email || contact.username}</h3>
+
+                {/* Info */}
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '3px' }}>
+                    <span style={{
+                      fontSize: '14px', fontWeight: '600',
+                      color: isSelected ? '#FFFFFF' : '#0F172A',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                    }}>
+                      {contact.email || contact.username}
+                    </span>
                     {contact.lastMessageTime && (
-                      <span className={`text-xs ml-2 flex-shrink-0 ${
-                        selectedContactId === contact.id ? 'text-white/80' : 'text-gray-500'
-                      }`}>{formatTime(contact.lastMessageTime)}</span>
+                      <span style={{ fontSize: '12px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#94A3B8', flexShrink: 0, marginLeft: '8px' }}>
+                        {formatTime(contact.lastMessageTime)}
+                      </span>
                     )}
                   </div>
                   {contact.lastMessage && (
-                    <p className={`text-xs truncate ${
-                      selectedContactId === contact.id ? 'text-white/80' : 'text-gray-500'
-                    }`}>{contact.lastMessage}</p>
+                    <p style={{
+                      margin: 0, fontSize: '13px',
+                      color: isSelected ? 'rgba(255,255,255,0.75)' : '#64748B',
+                      overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
+                    }}>
+                      {contact.lastMessage}
+                    </p>
                   )}
                 </div>
-              </div>
-            </button>
-          ))
+              </button>
+            );
+          })
         )}
       </div>
     </div>
