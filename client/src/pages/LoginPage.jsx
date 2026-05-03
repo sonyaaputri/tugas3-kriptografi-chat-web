@@ -3,7 +3,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 
 /**
  * @typedef {Object} LoginPageProps
- * @property {(username: string, password: string) => Promise<void>} onLogin
+ * @property {(email: string, password: string) => Promise<void>} onLogin
  * @property {() => void} onNavigateToRegister
  */
 
@@ -11,7 +11,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
  * @param {LoginPageProps} props
  */
 export function LoginPage({ onLogin, onNavigateToRegister }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -23,14 +23,14 @@ export function LoginPage({ onLogin, onNavigateToRegister }) {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       setError('Please fill in all fields');
       return;
     }
 
     setLoading(true);
     try {
-      await onLogin(username.trim(), password);
+      await onLogin(email.trim(), password);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -57,16 +57,16 @@ export function LoginPage({ onLogin, onNavigateToRegister }) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email
               </label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Enter your username"
+                placeholder="Enter your email"
                 disabled={loading}
               />
             </div>

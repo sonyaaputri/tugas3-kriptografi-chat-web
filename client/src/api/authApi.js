@@ -22,7 +22,7 @@ export async function register(payload) {
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || data.message || "Registration failed");
-  return data;
+  return data.data;  // Extract the data object from the response
 }
 
 /**
@@ -40,5 +40,5 @@ export async function login(email, password) {
 
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || data.message || "Login failed");
-  return data;
+  return data.data;  // Extract the data object from the response
 }

@@ -2,9 +2,9 @@ import { useState } from 'react';
 
 /**
  * @typedef {Object} Contact
- * @property {number} id
- * @property {string} username
+ * @property {string} email
  * @property {string} publicKey
+ * @property {string} [username]
  * @property {string} [lastMessage]
  * @property {string} [lastMessageTime]
  * @property {number} [unreadCount]
@@ -14,7 +14,7 @@ import { useState } from 'react';
  * @typedef {Object} ContactListProps
  * @property {Contact[]} contacts
  * @property {(contact: Contact) => void} onSelectContact
- * @property {number} [selectedContactId]
+ * @property {string} [selectedContactId]
  */
 
 /**
@@ -46,7 +46,7 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
   };
 
   const filteredContacts = contacts.filter(contact =>
-    contact.username.toLowerCase().includes(searchQuery.toLowerCase())
+    (contact.email || contact.username || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const conversationContacts = contacts.filter(contact => contact.lastMessage);
@@ -80,21 +80,21 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
           </div>
         ) : (
           conversationContacts
-            .filter(contact => contact.username.toLowerCase().includes(searchQuery.toLowerCase()))
+            .filter(contact => (contact.email || contact.username || '').toLowerCase().includes(searchQuery.toLowerCase()))
             .map((contact) => (
             <button
-              key={contact.id}
+              key={contact.email}
               onClick={() => onSelectContact(contact)}
               className={`w-full px-4 py-3 hover:bg-gray-50 transition-all text-left ${
-                selectedContactId === contact.id ? 'bg-blue-500 hover:bg-blue-500' : ''
+                selectedContactId === contact.email ? 'bg-blue-500 hover:bg-blue-500' : ''
               }`}
             >
               <div className="flex items-center gap-3">
                 <div className="relative flex-shrink-0">
                   <div className={`w-12 h-12 rounded-full flex items-center justify-center font-semibold ${
-                    selectedContactId === contact.id ? 'bg-white text-blue-500' : 'bg-gray-200 text-gray-600'
+                    selectedContactId === contact.email ? 'bg-white text-blue-500' : 'bg-gray-200 text-gray-600'
                   }`}>
-                    {contact.username.charAt(0).toUpperCase()}
+                    {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
                   </div>
                   <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
                 </div>
@@ -102,7 +102,7 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
                   <div className="flex items-center justify-between mb-0.5">
                     <h3 className={`font-semibold truncate text-sm ${
                       selectedContactId === contact.id ? 'text-white' : 'text-gray-900'
-                    }`}>{contact.username}</h3>
+                    }`}>{contact.email || contact.username}</h3>
                     {contact.lastMessageTime && (
                       <span className={`text-xs ml-2 flex-shrink-0 ${
                         selectedContactId === contact.id ? 'text-white/80' : 'text-gray-500'

@@ -4,9 +4,9 @@ import { Sidebar } from '../components/Sidebar';
 
 /**
  * @typedef {Object} Contact
- * @property {number} id
- * @property {string} username
+ * @property {string} email
  * @property {string} publicKey
+ * @property {string} [username]
  * @property {string} [lastMessage]
  * @property {string} [lastMessageTime]
  * @property {number} [unreadCount]
@@ -14,11 +14,11 @@ import { Sidebar } from '../components/Sidebar';
 
 /**
  * @typedef {Object} ContactsPageProps
- * @property {string} username
+ * @property {string} email
  * @property {Contact[]} contacts
  * @property {() => void} onLogout
  * @property {(contact: Contact) => void} onSelectContact
- * @property {(username: string) => Promise<void>} onAddContact
+ * @property {(email: string) => Promise<void>} onAddContact
  * @property {'messages'|'contacts'} [activeTab]
  * @property {(tab: 'messages'|'contacts') => void} [onTabChange]
  */
@@ -27,7 +27,7 @@ import { Sidebar } from '../components/Sidebar';
  * @param {ContactsPageProps} props
  */
 export function ContactsPage({
-  username,
+  email,
   contacts,
   onLogout,
   onSelectContact,
@@ -37,7 +37,7 @@ export function ContactsPage({
 }) {
   return (
     <div className="h-screen flex bg-gray-50">
-      <Sidebar activeTab={activeTab} username={username} onLogout={onLogout} onTabChange={onTabChange} />
+      <Sidebar activeTab={activeTab} username={email} onLogout={onLogout} onTabChange={onTabChange} />
 
       <div className="w-80 flex-shrink-0">
         {activeTab === 'contacts' ? (
@@ -45,7 +45,7 @@ export function ContactsPage({
             contacts={contacts}
             onSelectContact={onSelectContact}
             onAddContact={onAddContact}
-            currentUsername={username}
+            currentUsername={email}
           />
         ) : (
           <ContactList
