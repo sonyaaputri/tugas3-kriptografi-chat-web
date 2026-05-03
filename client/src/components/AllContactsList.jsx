@@ -1,27 +1,6 @@
 import { useState } from 'react';
 import { ErrorMessage } from './ErrorMessage';
 
-/**
- * @typedef {Object} Contact
- * @property {string} email
- * @property {string} publicKey
- * @property {string} [username]
- * @property {string} [lastMessage]
- * @property {string} [lastMessageTime]
- * @property {number} [unreadCount]
- */
-
-/**
- * @typedef {Object} AllContactsListProps
- * @property {Contact[]} contacts
- * @property {(contact: Contact) => void} onSelectContact
- * @property {(email: string) => Promise<void>} onAddContact
- * @property {string} currentUsername
- */
-
-/**
- * @param {AllContactsListProps} props
- */
 export function AllContactsList({ contacts, onSelectContact, onAddContact, currentUsername }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
@@ -29,20 +8,12 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  /**
-   * @param {React.FormEvent} e
-   */
   const handleAddContact = async (e) => {
     e.preventDefault();
     setError('');
 
     if (!newContactEmail.trim()) {
-      setError('Please enter an email address');
-      return;
-    }
-
-    if (!newContactEmail.includes('@')) {
-      setError('Please enter a valid email address');
+      setError('Please enter a username');
       return;
     }
 
@@ -63,122 +34,253 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
     }
   };
 
-  const filteredContacts = contacts.filter(contact =>
-    (contact.email || contact.username || '').toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredContacts = contacts.filter(c =>
+    (c.email || c.username || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
     <>
-      <div className="h-full bg-white flex flex-col border-r border-gray-200">
-        <div className="p-4 border-b border-gray-200 space-y-3">
-          <h2 className="text-lg font-bold text-gray-900">All Contacts</h2>
-          <div className="relative">
-            <svg className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+      <div style={{
+        height: '100%',
+        background: '#FFFFFF',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRight: '1px solid #E2E8F0',
+        fontFamily: "'Segoe UI', system-ui, sans-serif"
+      }}>
+        {/* Header */}
+        <div style={{ padding: '20px 16px 12px', borderBottom: '1px solid #F1F5F9' }}>
+          <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', margin: '0 0 12px 0' }}>
+            All Contacts
+          </h2>
+
+          {/* Search */}
+          <div style={{ position: 'relative', marginBottom: '10px' }}>
+            <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}
+              width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
             </svg>
             <input
               type="text"
               placeholder="Search contacts"
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all text-sm"
+              onChange={e => setSearchQuery(e.target.value)}
+              style={{
+                width: '100%',
+                padding: '9px 12px 9px 36px',
+                background: '#F1F5F9',
+                border: 'none',
+                borderRadius: '10px',
+                fontSize: '14px',
+                color: '#0F172A',
+                outline: 'none',
+                boxSizing: 'border-box'
+              }}
             />
           </div>
+
+          {/* Add Contact button */}
           <button
             onClick={() => setShowAddModal(true)}
-            className="w-full bg-blue-500 hover:bg-blue-600 text-white py-2.5 rounded-lg transition-colors flex items-center justify-center gap-2 text-sm font-medium"
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: '#2563EB',
+              color: '#FFFFFF',
+              border: 'none',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '6px',
+              transition: 'background 0.2s'
+            }}
+            onMouseEnter={e => e.currentTarget.style.background = '#1D4ED8'}
+            onMouseLeave={e => e.currentTarget.style.background = '#2563EB'}
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
             Add Contact
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto">
+        {/* Contact list */}
+        <div style={{ flex: 1, overflowY: 'auto' }}>
           {filteredContacts.length === 0 ? (
-            <div className="px-6 py-16 text-center text-gray-500">
-              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-              </svg>
-              <p className="text-sm font-medium text-gray-700">No contacts found</p>
+            <div style={{ textAlign: 'center', padding: '48px 24px', color: '#94A3B8' }}>
+              <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No contacts found</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-100">
-              {filteredContacts.map((contact) => (
+            filteredContacts.map(contact => {
+              const label = contact.email || contact.username || 'U';
+              const initial = label.charAt(0).toUpperCase();
+              return (
                 <button
-                  key={contact.email}
+                  key={contact.email || contact.username}
                   onClick={() => onSelectContact(contact)}
-                  className="w-full p-3 hover:bg-blue-50 transition-colors flex items-center gap-3 text-left border-l-4 border-transparent hover:border-blue-500"
+                  style={{
+                    width: '100%',
+                    padding: '12px 16px',
+                    background: 'transparent',
+                    border: 'none',
+                    borderBottom: '1px solid #F8FAFC',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    textAlign: 'left',
+                    transition: 'background 0.15s'
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.background = '#F8FAFC'}
+                  onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                 >
-                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
-                    {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
+                  {/* Avatar */}
+                  <div style={{ position: 'relative', flexShrink: 0 }}>
+                    <div style={{
+                      width: '44px',
+                      height: '44px',
+                      borderRadius: '50%',
+                      background: '#E2E8F0',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: '15px',
+                      fontWeight: '600',
+                      color: '#475569'
+                    }}>
+                      {initial}
+                    </div>
+                    <div style={{
+                      position: 'absolute',
+                      bottom: 1, right: 1,
+                      width: '11px', height: '11px',
+                      borderRadius: '50%',
+                      background: '#22C55E',
+                      border: '2px solid white'
+                    }} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-gray-900 truncate">{contact.email || contact.username}</p>
+
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <p style={{ margin: 0, fontSize: '14px', fontWeight: '600', color: '#0F172A' }}>{label}</p>
+                    <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#94A3B8' }}>Click to start chat</p>
                   </div>
+
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#CBD5E1" strokeWidth="2">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+                  </svg>
                 </button>
-              ))}
-            </div>
+              );
+            })
           )}
         </div>
       </div>
 
+      {/* Add Contact Modal */}
       {showAddModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-          <div className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-2xl font-bold text-gray-900">Add Contact</h2>
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0,0,0,0.5)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '24px',
+          zIndex: 50
+        }}>
+          <div style={{
+            background: '#FFFFFF',
+            borderRadius: '20px',
+            boxShadow: '0 20px 60px rgba(0,0,0,0.2)',
+            padding: '36px',
+            width: '100%',
+            maxWidth: '420px',
+            fontFamily: "'Segoe UI', system-ui, sans-serif"
+          }}>
+            {/* Modal header */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
+              <h2 style={{ margin: 0, fontSize: '22px', fontWeight: '700', color: '#0F172A' }}>Add Contact</h2>
               <button
-                onClick={() => {
-                  setShowAddModal(false);
-                  setError('');
-                  setNewContactEmail('');
+                onClick={() => { setShowAddModal(false); setError(''); setNewContactEmail(''); }}
+                style={{
+                  background: 'none', border: 'none', cursor: 'pointer',
+                  color: '#94A3B8', display: 'flex', padding: '4px'
                 }}
-                className="text-gray-500 hover:text-gray-700"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                <svg width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
 
-            <form onSubmit={handleAddContact} className="space-y-4">
+            <form onSubmit={handleAddContact} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
               <div>
-                <label htmlFor="contactUsername" className="block text-sm font-medium text-gray-700 mb-2">
-                  Email
+                <label style={{ display: 'block', fontSize: '14px', fontWeight: '500', color: '#374151', marginBottom: '8px' }}>
+                  Username
                 </label>
                 <input
-                  id="contactEmail"
-                  type="email"
+                  type="text"
                   value={newContactEmail}
-                  onChange={(e) => setNewContactEmail(e.target.value)}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter email address"
+                  onChange={e => setNewContactEmail(e.target.value)}
+                  placeholder="Enter username"
                   disabled={loading}
                   autoFocus
+                  style={{
+                    width: '100%',
+                    padding: '14px 16px',
+                    border: '1.5px solid #E5E7EB',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    outline: 'none',
+                    boxSizing: 'border-box',
+                    background: '#FAFAFA'
+                  }}
+                  onFocus={e => e.target.style.borderColor = '#3B82F6'}
+                  onBlur={e => e.target.style.borderColor = '#E5E7EB'}
                 />
               </div>
 
               {error && <ErrorMessage message={error} />}
 
-              <div className="flex gap-3">
+              <div style={{ display: 'flex', gap: '12px' }}>
                 <button
                   type="button"
-                  onClick={() => {
-                    setShowAddModal(false);
-                    setError('');
-                    setNewContactEmail('');
-                  }}
-                  className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+                  onClick={() => { setShowAddModal(false); setError(''); setNewContactEmail(''); }}
                   disabled={loading}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: '#FFFFFF',
+                    border: '1.5px solid #E5E7EB',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: '500',
+                    cursor: 'pointer',
+                    color: '#374151'
+                  }}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={loading}
-                  className="flex-1 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-4 py-3 rounded-lg transition"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    background: loading ? '#93C5FD' : '#2563EB',
+                    color: '#FFFFFF',
+                    border: 'none',
+                    borderRadius: '12px',
+                    fontSize: '15px',
+                    fontWeight: '600',
+                    cursor: loading ? 'not-allowed' : 'pointer',
+                    transition: 'background 0.2s'
+                  }}
+                  onMouseEnter={e => !loading && (e.currentTarget.style.background = '#1D4ED8')}
+                  onMouseLeave={e => !loading && (e.currentTarget.style.background = '#2563EB')}
                 >
                   {loading ? 'Adding...' : 'Add'}
                 </button>

@@ -1,49 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
-import { ChatBox } from '../components/ChatBox';
 import { ContactList } from '../components/ContactList';
-import { MessageBubble } from '../components/MessageBubble';
 import { Sidebar } from '../components/Sidebar';
 
-/**
- * @typedef {Object} Message
- * @property {string} id
- * @property {string} sender_email
- * @property {string} receiver_email
- * @property {string} ciphertext
- * @property {string} iv
- * @property {string} mac
- * @property {string} timestamp
- * @property {string} [decryptedContent]
- * @property {boolean} [decryptionFailed]
- */
-
-/**
- * @typedef {Object} Contact
- * @property {number} id
- * @property {string} username
- * @property {string} publicKey
- * @property {string} [lastMessage]
- * @property {string} [lastMessageTime]
- * @property {number} [unreadCount]
- */
-
-/**
- * @typedef {Object} ChatPageProps
- * @property {{ id: number; username: string }} currentUser
- * @property {Contact} contact
- * @property {Contact[]} contacts
- * @property {Message[]} messages
- * @property {(contact: Contact) => void} onSelectContact
- * @property {(message: string) => Promise<void>} onSendMessage
- * @property {() => void} onLogout
- * @property {(message: Message) => Promise<string>} onDecryptMessage
- * @property {'messages'|'contacts'} [activeTab]
- * @property {(tab: 'messages'|'contacts') => void} [onTabChange]
- */
-
-/**
- * @param {ChatPageProps} props
- */
 export function ChatPage({
   currentUser,
   contact,
@@ -58,6 +16,7 @@ export function ChatPage({
 }) {
   const [decryptedMessages, setDecryptedMessages] = useState(new Map());
   const [sendingMessage, setSendingMessage] = useState(false);
+  const [messageText, setMessageText] = useState('');
   const messagesEndRef = useRef(null);
 
   useEffect(() => {
@@ -67,40 +26,49 @@ export function ChatPage({
           try {
             const decrypted = await onDecryptMessage(message);
             setDecryptedMessages(prev => new Map(prev).set(message.id, { content: decrypted, failed: false }));
-          } catch (error) {
-            console.error('Decryption failed:', error);
+          } catch {
             setDecryptedMessages(prev => new Map(prev).set(message.id, { content: '', failed: true }));
           }
         }
       }
     };
-
     decryptMessages();
-  }, [messages, onDecryptMessage, decryptedMessages]);
+  }, [messages]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  /**
-   * @param {string} message
-   */
-  const handleSendMessage = async (message) => {
+  const handleSend = async (e) => {
+    e?.preventDefault();
+    if (!messageText.trim() || sendingMessage) return;
     setSendingMessage(true);
     try {
-      await onSendMessage(message);
-    } catch (error) {
-      console.error('Failed to send message:', error);
-    } finally {
-      setSendingMessage(false);
-    }
+      await onSendMessage(messageText.trim());
+      setMessageText('');
+    } catch {}
+    finally { setSendingMessage(false); }
+  };
+
+  const formatTime = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
+    <div style={{
+      height: '100vh',
+      display: 'flex',
+      background: '#F8FAFC',
+      fontFamily: "'Segoe UI', system-ui, sans-serif",
+      overflow: 'hidden'
+    }}>
+      {/* Sidebar */}
       <Sidebar activeTab={activeTab} username={currentUser.username} onLogout={onLogout} onTabChange={onTabChange} />
 
-      <div className="w-80 flex-shrink-0">
+      {/* Contact list panel */}
+      <div style={{ width: '300px', flexShrink: 0 }}>
         <ContactList
           contacts={contacts}
           onSelectContact={onSelectContact}
@@ -108,51 +76,149 @@ export function ChatPage({
         />
       </div>
 
-      <div className="flex-1 flex flex-col bg-gray-100">
-        <div className="bg-white border-b border-gray-200 px-6 py-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600">
-              <span className="font-semibold">{(contact.email || contact.username || 'U').charAt(0).toUpperCase()}</span>
-            </div>
-            <div>
-              <h2 className="font-semibold text-gray-900">{contact.email || contact.username}</h2>
-              <div className="flex items-center gap-1 text-xs text-gray-500">
-                <span>Online</span>
-              </div>
-            </div>
+      {/* Chat area */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', background: '#F1F5F9', minWidth: 0 }}>
+        {/* Chat header */}
+        <div style={{
+          background: '#FFFFFF',
+          borderBottom: '1px solid #E2E8F0',
+          padding: '14px 24px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          flexShrink: 0
+        }}>
+          <div style={{
+            width: '40px', height: '40px',
+            borderRadius: '50%',
+            background: '#E2E8F0',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: '15px', fontWeight: '600', color: '#475569', flexShrink: 0
+          }}>
+            {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
+          </div>
+          <div>
+            <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: '#0F172A' }}>
+              {contact.email || contact.username}
+            </h2>
+            <p style={{ margin: 0, fontSize: '12px', color: '#22C55E', fontWeight: '500' }}>Online</p>
           </div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 py-6">
+        {/* Messages */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '24px 24px 16px' }}>
           {messages.length === 0 ? (
-            <div className="text-center py-12">
-              <svg className="w-16 h-16 mx-auto mb-4 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+            <div style={{ textAlign: 'center', paddingTop: '60px', color: '#94A3B8' }}>
+              <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.5"
+                style={{ margin: '0 auto 12px', display: 'block', color: '#CBD5E1' }}>
+                <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
               </svg>
-              <p className="text-gray-500 text-sm">No messages yet</p>
-              <p className="text-gray-400 text-xs mt-1">Send a message to start the conversation</p>
+              <p style={{ fontSize: '14px', margin: 0 }}>No messages yet. Say hello!</p>
             </div>
           ) : (
-            messages.map((message) => {
+            messages.map(message => {
               const decryptedData = decryptedMessages.get(message.id);
               const isSent = message.sender_email === currentUser.username;
+              const content = decryptedData?.content || message.ciphertext;
 
               return (
-                <MessageBubble
+                <div
                   key={message.id}
-                  message={decryptedData?.content || message.ciphertext}
-                  timestamp={message.timestamp}
-                  isSent={isSent}
-                  isEncrypted={true}
-                  decryptionFailed={decryptedData?.failed || false}
-                />
+                  style={{
+                    display: 'flex',
+                    justifyContent: isSent ? 'flex-end' : 'flex-start',
+                    marginBottom: '16px'
+                  }}
+                >
+                  <div style={{ maxWidth: '60%' }}>
+                    <div style={{
+                      padding: '10px 16px',
+                      borderRadius: isSent ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
+                      background: isSent ? '#2563EB' : '#FFFFFF',
+                      color: isSent ? '#FFFFFF' : '#0F172A',
+                      fontSize: '14px',
+                      lineHeight: '1.5',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.08)',
+                      border: isSent ? 'none' : '1px solid #E2E8F0',
+                      wordBreak: 'break-word'
+                    }}>
+                      {decryptedData?.failed ? (
+                        <span style={{ color: '#EF4444', fontSize: '13px' }}>Failed to decrypt message</span>
+                      ) : content}
+                    </div>
+                    <p style={{
+                      margin: '4px 8px 0',
+                      fontSize: '11px',
+                      color: '#94A3B8',
+                      textAlign: isSent ? 'right' : 'left'
+                    }}>
+                      {formatTime(message.timestamp)}
+                    </p>
+                  </div>
+                </div>
               );
             })
           )}
           <div ref={messagesEndRef} />
         </div>
 
-        <ChatBox onSendMessage={handleSendMessage} disabled={sendingMessage} />
+        {/* Input bar */}
+        <div style={{
+          background: '#FFFFFF',
+          borderTop: '1px solid #E2E8F0',
+          padding: '14px 20px',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '12px',
+          flexShrink: 0
+        }}>
+          <input
+            type="text"
+            value={messageText}
+            onChange={e => setMessageText(e.target.value)}
+            onKeyDown={e => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                handleSend();
+              }
+            }}
+            placeholder="Message"
+            disabled={sendingMessage}
+            style={{
+              flex: 1,
+              padding: '12px 16px',
+              background: '#F1F5F9',
+              border: '1.5px solid transparent',
+              borderRadius: '12px',
+              fontSize: '14px',
+              color: '#0F172A',
+              outline: 'none',
+              transition: 'border-color 0.2s'
+            }}
+            onFocus={e => e.target.style.borderColor = '#3B82F6'}
+            onBlur={e => e.target.style.borderColor = 'transparent'}
+          />
+          <button
+            onClick={handleSend}
+            disabled={!messageText.trim() || sendingMessage}
+            style={{
+              width: '44px', height: '44px',
+              borderRadius: '12px',
+              background: messageText.trim() && !sendingMessage ? '#2563EB' : '#E2E8F0',
+              border: 'none',
+              cursor: messageText.trim() && !sendingMessage ? 'pointer' : 'not-allowed',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              flexShrink: 0,
+              transition: 'background 0.2s, transform 0.1s'
+            }}
+            onMouseEnter={e => { if (messageText.trim()) e.currentTarget.style.background = '#1D4ED8'; }}
+            onMouseLeave={e => { e.currentTarget.style.background = messageText.trim() ? '#2563EB' : '#E2E8F0'; }}
+          >
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke={messageText.trim() ? '#FFFFFF' : '#94A3B8'} strokeWidth="2">
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+          </button>
+        </div>
       </div>
     </div>
   );
