@@ -6,10 +6,12 @@ import { Sidebar } from '../components/Sidebar';
 
 /**
  * @typedef {Object} Message
- * @property {number} id
- * @property {number} senderId
- * @property {number} receiverId
- * @property {string} encryptedContent
+ * @property {string} id
+ * @property {string} sender_email
+ * @property {string} receiver_email
+ * @property {string} ciphertext
+ * @property {string} iv
+ * @property {string} mac
  * @property {string} timestamp
  * @property {string} [decryptedContent]
  * @property {boolean} [decryptionFailed]
@@ -102,7 +104,7 @@ export function ChatPage({
         <ContactList
           contacts={contacts}
           onSelectContact={onSelectContact}
-          selectedContactId={contact.id}
+          selectedContactId={contact.email}
         />
       </div>
 
@@ -110,10 +112,10 @@ export function ChatPage({
         <div className="bg-white border-b border-gray-200 px-6 py-4">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center text-gray-600">
-              <span className="font-semibold">{contact.username.charAt(0).toUpperCase()}</span>
+              <span className="font-semibold">{(contact.email || contact.username || 'U').charAt(0).toUpperCase()}</span>
             </div>
             <div>
-              <h2 className="font-semibold text-gray-900">{contact.username}</h2>
+              <h2 className="font-semibold text-gray-900">{contact.email || contact.username}</h2>
               <div className="flex items-center gap-1 text-xs text-gray-500">
                 <span>Online</span>
               </div>
@@ -133,12 +135,12 @@ export function ChatPage({
           ) : (
             messages.map((message) => {
               const decryptedData = decryptedMessages.get(message.id);
-              const isSent = message.senderId === currentUser.id;
+              const isSent = message.sender_email === currentUser.username;
 
               return (
                 <MessageBubble
                   key={message.id}
-                  message={decryptedData?.content || 'Decrypting...'}
+                  message={decryptedData?.content || message.ciphertext}
                   timestamp={message.timestamp}
                   isSent={isSent}
                   isEncrypted={true}

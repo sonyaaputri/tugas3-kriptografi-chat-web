@@ -3,7 +3,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 
 /**
  * @typedef {Object} RegisterPageProps
- * @property {(username: string, password: string) => Promise<void>} onRegister
+ * @property {(email: string, password: string) => Promise<void>} onRegister
  * @property {() => void} onNavigateToLogin
  */
 
@@ -11,7 +11,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
  * @param {RegisterPageProps} props
  */
 export function RegisterPage({ onRegister, onNavigateToLogin }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -24,13 +24,13 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError('Please fill in all fields');
       return;
     }
 
-    if (username.length < 3) {
-      setError('Username must be at least 3 characters long');
+    if (!email.includes('@')) {
+      setError('Please enter a valid email');
       return;
     }
 
@@ -46,7 +46,7 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
 
     setLoading(true);
     try {
-      await onRegister(username.trim(), password);
+      await onRegister(email.trim(), password);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -73,19 +73,18 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label htmlFor="username" className="block text-sm font-medium text-gray-700 mb-2">
-                Username
+              <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+                Email
               </label>
               <input
-                id="username"
-                type="text"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                id="email"
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                placeholder="Choose a username"
+                placeholder="Enter your email"
                 disabled={loading}
               />
-              <p className="text-xs text-gray-500 mt-1">At least 3 characters</p>
             </div>
 
             <div>

@@ -3,9 +3,9 @@ import { ErrorMessage } from './ErrorMessage';
 
 /**
  * @typedef {Object} Contact
- * @property {number} id
- * @property {string} username
+ * @property {string} email
  * @property {string} publicKey
+ * @property {string} [username]
  * @property {string} [lastMessage]
  * @property {string} [lastMessageTime]
  * @property {number} [unreadCount]
@@ -15,7 +15,7 @@ import { ErrorMessage } from './ErrorMessage';
  * @typedef {Object} AllContactsListProps
  * @property {Contact[]} contacts
  * @property {(contact: Contact) => void} onSelectContact
- * @property {(username: string) => Promise<void>} onAddContact
+ * @property {(email: string) => Promise<void>} onAddContact
  * @property {string} currentUsername
  */
 
@@ -25,7 +25,7 @@ import { ErrorMessage } from './ErrorMessage';
 export function AllContactsList({ contacts, onSelectContact, onAddContact, currentUsername }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
-  const [newContactUsername, setNewContactUsername] = useState('');
+  const [newContactEmail, setNewContactEmail] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -36,20 +36,25 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
     e.preventDefault();
     setError('');
 
-    if (!newContactUsername.trim()) {
-      setError('Please enter a username');
+    if (!newContactEmail.trim()) {
+      setError('Please enter an email address');
       return;
     }
 
-    if (newContactUsername.trim() === currentUsername) {
+    if (!newContactEmail.includes('@')) {
+      setError('Please enter a valid email address');
+      return;
+    }
+
+    if (newContactEmail.trim() === currentUsername) {
       setError('You cannot add yourself as a contact');
       return;
     }
 
     setLoading(true);
     try {
-      await onAddContact(newContactUsername.trim());
-      setNewContactUsername('');
+      await onAddContact(newContactEmail.trim());
+      setNewContactEmail('');
       setShowAddModal(false);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to add contact');
@@ -59,7 +64,7 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
   };
 
   const filteredContacts = contacts.filter(contact =>
-    contact.username.toLowerCase().includes(searchQuery.toLowerCase())
+    (contact.email || contact.username || '').toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -99,31 +104,22 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
               <p className="text-sm font-medium text-gray-700">No contacts found</p>
             </div>
           ) : (
-            filteredContacts.map((contact) => (
-              <button
-                key={contact.id}
-                onClick={() => onSelectContact(contact)}
-                className="w-full px-4 py-3 hover:bg-gray-50 transition-all text-left border-b border-gray-100"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="relative flex-shrink-0">
-                    <div className="w-12 h-12 rounded-full flex items-center justify-center font-semibold bg-gray-200 text-gray-600">
-                      {contact.username.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+            <div className="divide-y divide-gray-100">
+              {filteredContacts.map((contact) => (
+                <button
+                  key={contact.email}
+                  onClick={() => onSelectContact(contact)}
+                  className="w-full p-3 hover:bg-blue-50 transition-colors flex items-center gap-3 text-left border-l-4 border-transparent hover:border-blue-500"
+                >
+                  <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-blue-600 rounded-full flex items-center justify-center text-white font-semibold flex-shrink-0">
+                    {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <h3 className="font-semibold truncate text-sm text-gray-900">
-                      {contact.username}
-                    </h3>
-                    <p className="text-xs text-gray-500">Click to start chat</p>
+                    <p className="font-medium text-gray-900 truncate">{contact.email || contact.username}</p>
                   </div>
-                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </div>
-              </button>
-            ))
+                </button>
+              ))}
+            </div>
           )}
         </div>
       </div>
@@ -137,7 +133,7 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
                 onClick={() => {
                   setShowAddModal(false);
                   setError('');
-                  setNewContactUsername('');
+                  setNewContactEmail('');
                 }}
                 className="text-gray-500 hover:text-gray-700"
               >
@@ -150,15 +146,15 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
             <form onSubmit={handleAddContact} className="space-y-4">
               <div>
                 <label htmlFor="contactUsername" className="block text-sm font-medium text-gray-700 mb-2">
-                  Username
+                  Email
                 </label>
                 <input
-                  id="contactUsername"
-                  type="text"
-                  value={newContactUsername}
-                  onChange={(e) => setNewContactUsername(e.target.value)}
+                  id="contactEmail"
+                  type="email"
+                  value={newContactEmail}
+                  onChange={(e) => setNewContactEmail(e.target.value)}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Enter username"
+                  placeholder="Enter email address"
                   disabled={loading}
                   autoFocus
                 />
@@ -172,7 +168,7 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
                   onClick={() => {
                     setShowAddModal(false);
                     setError('');
-                    setNewContactUsername('');
+                    setNewContactEmail('');
                   }}
                   className="flex-1 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
                   disabled={loading}
