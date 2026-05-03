@@ -10,10 +10,10 @@
  *   ES512 → ECDSA dengan kurva P-521 dan SHA-512
  */
 
-const crypto = require("crypto");
-const { encode } = require("./base64url");
-const { JWTError, ERROR_MESSAGES } = require("./errors");
-const { loadPrivateKey, algToHashOptions } = require("./keyLoader");
+import crypto from "crypto";
+import { encode } from "./base64url.js";
+import { JWTError, ERROR_MESSAGES } from "./errors.js";
+import { loadPrivateKey, algToHashOptions } from "./keyLoader.js";
 
 const SUPPORTED_ALGS = ["ES256", "ES384", "ES512"];
 
@@ -132,4 +132,4 @@ function sign(header, claims = {}, payload = {}, privateKey) {
   return `${signingInput}.${signatureB64}`;
 }
 
-module.exports = { sign };
+export { sign };

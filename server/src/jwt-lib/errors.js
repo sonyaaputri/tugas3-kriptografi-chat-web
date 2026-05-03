@@ -45,4 +45,4 @@ const ERROR_MESSAGES = {
   VERIFY_FAILED:            "Proses verifikasi JWT gagal",
 };
 
-module.exports = { JWTError, ERROR_MESSAGES };
+export { JWTError, ERROR_MESSAGES };

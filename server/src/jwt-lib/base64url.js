@@ -40,4 +40,4 @@ function decodeToString(input) {
   return decode(input).toString("utf8");
 }
 
-module.exports = { encode, decode, decodeToString };
+export { encode, decode, decodeToString };

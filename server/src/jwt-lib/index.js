@@ -4,7 +4,7 @@
  * Export fungsi sign dan verify yang menjadi antarmuka utama library ini
  */
 
-const { sign } = require("./sign");
-const { verify } = require("./verify");
+import { sign } from "./sign.js";
+import { verify } from "./verify.js";
 
-module.exports = { sign, verify };
+export { sign, verify };

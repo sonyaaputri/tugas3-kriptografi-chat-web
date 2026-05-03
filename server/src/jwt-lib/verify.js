@@ -11,10 +11,10 @@
  *  6. Validasi klaim lain (iss, sub, aud, jti) jika dispesifikasikan di options
  */
 
-const crypto = require("crypto");
-const { decode, decodeToString } = require("./base64url");
-const { JWTError, ERROR_MESSAGES } = require("./errors");
-const { loadPublicKey, algToHashOptions } = require("./keyLoader");
+import crypto from "crypto";
+import { decode, decodeToString } from "./base64url.js";
+import { JWTError, ERROR_MESSAGES } from "./errors.js";
+import { loadPublicKey, algToHashOptions } from "./keyLoader.js";
 
 const SUPPORTED_ALGS = ["ES256", "ES384", "ES512"];
 
@@ -155,4 +155,4 @@ function verify(jwt, publicKey, options = {}) {
   return { header, payload, signature: signatureB64 };
 }
 
-module.exports = { verify };
+export { verify };

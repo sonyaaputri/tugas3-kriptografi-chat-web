@@ -4,8 +4,8 @@
  * ke dalam objek KeyObject Node.js yang siap digunakan oleh modul crypto
  */
 
-const crypto = require("crypto");
-const { JWTError, ERROR_MESSAGES } = require("./errors");
+import crypto from "crypto";
+import { JWTError, ERROR_MESSAGES } from "./errors.js";
 
 /**
  * Memuat private key dari string PEM
@@ -56,4 +56,4 @@ function algToHashOptions(alg) {
   return map[alg] || null;
 }
 
-module.exports = { loadPrivateKey, loadPublicKey, algToHashOptions };
+export { loadPrivateKey, loadPublicKey, algToHashOptions };
