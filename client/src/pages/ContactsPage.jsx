@@ -30,11 +30,13 @@ export function ContactsPage({
             onSelectContact={onSelectContact}
             onAddContact={onAddContact}
             currentUsername={username}
+            onTabChange={onTabChange}
           />
         ) : (
           <ContactList
             contacts={contacts}
             onSelectContact={onSelectContact}
+            selectedContactId=""
           />
         )}
       </div>

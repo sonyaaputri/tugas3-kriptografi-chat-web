@@ -30,6 +30,12 @@ coverage/
 client/coverage/
 server/coverage/
 
+# JWT Keys dan private keys
+server/src/tests/jwt.keys/
+*.pem
+private*.key
+*.key
+
 # OS / editor
 .DS_Store
 Thumbs.db

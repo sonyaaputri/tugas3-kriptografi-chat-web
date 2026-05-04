@@ -1,6 +1,10 @@
 import { useState } from 'react';
 
-export function ContactList({ contacts, onSelectContact, selectedContactId }) {
+export function ContactList({ 
+  contacts, 
+  onSelectContact, 
+  selectedContactId
+}) {
   const [searchQuery, setSearchQuery] = useState('');
 
   const formatTime = (dateString) => {
@@ -20,7 +24,7 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
     }
   };
 
-  const conversationContacts = contacts.filter(c => c.lastMessage);
+  const conversationContacts = contacts.filter(c => c.lastMessage || c.email === selectedContactId);
 
   const filtered = conversationContacts.filter(c =>
     (c.email || c.username || '').toLowerCase().includes(searchQuery.toLowerCase())
@@ -40,7 +44,7 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
         <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0F172A', margin: '0 0 12px 0' }}>
           Messages
         </h2>
-        <div style={{ position: 'relative' }}>
+        <div style={{ position: 'relative', marginBottom: '10px' }}>
           <svg style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: '#94A3B8' }}
             width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2">
             <path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -73,7 +77,7 @@ export function ContactList({ contacts, onSelectContact, selectedContactId }) {
               style={{ margin: '0 auto 12px', display: 'block', color: '#CBD5E1' }}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
             </svg>
-            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No conversations yet</p>
+            <p style={{ fontSize: '13px', color: '#64748B', margin: 0 }}>No contacts found</p>
           </div>
         ) : (
           filtered.map(contact => {

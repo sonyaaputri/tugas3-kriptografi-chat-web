@@ -37,6 +37,13 @@ function AppContent() {
   useEffect(() => {
     if (authToken && currentUser) {
       loadContacts();
+      
+      // Poll untuk kontak dan chat history baru setiap 3 detik
+      const contactPollingInterval = setInterval(() => {
+        loadContacts();
+      }, 3000);
+
+      return () => clearInterval(contactPollingInterval);
     }
   }, [authToken, currentUser]);
 
@@ -44,6 +51,13 @@ function AppContent() {
   useEffect(() => {
     if (selectedContact && authToken) {
       loadMessages();
+      
+      // Poll untuk messages baru setiap 2 detik
+      const messagePollingInterval = setInterval(() => {
+        loadMessages();
+      }, 2000);
+
+      return () => clearInterval(messagePollingInterval);
     }
   }, [selectedContact, authToken]);
 
@@ -137,6 +151,7 @@ function AppContent() {
         authToken
       );
       await loadMessages();
+      await loadContacts();  // Refresh contact list untuk update lastMessage
     } catch (err) {
       console.error("Failed to send message:", err);
       throw err;
@@ -199,6 +214,7 @@ function AppContent() {
                 onSendMessage={handleSendMessage}
                 onLogout={handleLogout}
                 onDecryptMessage={handleDecryptMessage}
+                onAddContact={() => loadContacts()}
                 activeTab={activeTab}
                 onTabChange={setActiveTab}
               />

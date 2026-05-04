@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ErrorMessage } from './ErrorMessage';
 
-export function AllContactsList({ contacts, onSelectContact, onAddContact, currentUsername }) {
+export function AllContactsList({ contacts, onSelectContact, onAddContact, currentUsername, onTabChange }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
   const [newContactEmail, setNewContactEmail] = useState('');
@@ -121,7 +121,10 @@ export function AllContactsList({ contacts, onSelectContact, onAddContact, curre
               return (
                 <button
                   key={contact.email || contact.username}
-                  onClick={() => onSelectContact(contact)}
+                  onClick={() => {
+                    onSelectContact(contact);
+                    onTabChange?.('messages');
+                  }}
                   style={{
                     width: '100%',
                     padding: '12px 16px',

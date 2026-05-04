@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { ContactList } from '../components/ContactList';
+import { AllContactsList } from '../components/AllContactsList';
 import { Sidebar } from '../components/Sidebar';
 
 export function ChatPage({
@@ -11,6 +12,7 @@ export function ChatPage({
   onSendMessage,
   onLogout,
   onDecryptMessage,
+  onAddContact,
   activeTab = 'messages',
   onTabChange
 }) {
@@ -69,11 +71,21 @@ export function ChatPage({
 
       {/* Contact list panel */}
       <div style={{ width: '300px', flexShrink: 0 }}>
-        <ContactList
-          contacts={contacts}
-          onSelectContact={onSelectContact}
-          selectedContactId={contact.email}
-        />
+        {activeTab === 'contacts' ? (
+          <AllContactsList
+            contacts={contacts}
+            onSelectContact={onSelectContact}
+            onAddContact={onAddContact}
+            currentUsername={currentUser.username}
+            onTabChange={onTabChange}
+          />
+        ) : (
+          <ContactList
+            contacts={contacts}
+            onSelectContact={onSelectContact}
+            selectedContactId={contact.email}
+          />
+        )}
       </div>
 
       {/* Chat area */}
@@ -97,7 +109,7 @@ export function ChatPage({
           }}>
             {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
           </div>
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: '#0F172A' }}>
               {contact.email || contact.username}
             </h2>
