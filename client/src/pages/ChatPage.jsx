@@ -23,12 +23,26 @@ export function ChatPage({
   useEffect(() => {
     const decryptMessages = async () => {
       for (const message of messages) {
-        if (!decryptedMessages.has(message.id)) {
+        const fingerprint = `${message.ciphertext}|${message.iv}|${message.mac}`;
+        const cached = decryptedMessages.get(message.id);
+        if (!cached || cached.fingerprint !== fingerprint) {
           try {
             const decrypted = await onDecryptMessage(message);
-            setDecryptedMessages(prev => new Map(prev).set(message.id, { content: decrypted, failed: false }));
-          } catch {
-            setDecryptedMessages(prev => new Map(prev).set(message.id, { content: '', failed: true }));
+            setDecryptedMessages(prev => new Map(prev).set(message.id, {
+              content: decrypted,
+              failed: false,
+              fingerprint,
+            }));
+          } catch (err) {
+            const reason = err instanceof Error && err.message === 'Invalid message MAC'
+              ? 'Invalid message authentication'
+              : 'Failed to decrypt message';
+            setDecryptedMessages(prev => new Map(prev).set(message.id, {
+              content: '',
+              failed: true,
+              fingerprint,
+              reason,
+            }));
           }
         }
       }
@@ -162,7 +176,9 @@ export function ChatPage({
                       wordBreak: 'break-word'
                     }}>
                       {decryptedData?.failed ? (
-                        <span style={{ color: '#EF4444', fontSize: '13px' }}>Failed to decrypt message</span>
+                        <span style={{ color: '#EF4444', fontSize: '13px' }}>
+                          {decryptedData.reason || 'Failed to decrypt message'}
+                        </span>
                       ) : content}
                     </div>
                     <p style={{
