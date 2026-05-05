@@ -57,6 +57,7 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
 
   const labelStyle = {
     display: 'block',
+    textAlign: 'left',
     fontSize: '14px',
     fontWeight: '500',
     color: '#374151',
@@ -119,13 +120,13 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="Choose a username"
+              placeholder="choose a username"
               disabled={loading}
               style={inputStyle}
               onFocus={e => e.target.style.borderColor = '#3B82F6'}
               onBlur={e => e.target.style.borderColor = '#E5E7EB'}
             />
-            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0' }}>At least 3 characters</p>
+            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0', textAlign: 'left' }}>At least 3 characters</p>
           </div>
 
           <div>
@@ -134,13 +135,13 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              placeholder="Create a password"
+              placeholder="create a password"
               disabled={loading}
               style={inputStyle}
               onFocus={e => e.target.style.borderColor = '#3B82F6'}
               onBlur={e => e.target.style.borderColor = '#E5E7EB'}
             />
-            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0' }}>At least 8 characters</p>
+            <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0', textAlign: 'left' }}>At least 8 characters</p>
           </div>
 
           <div>
