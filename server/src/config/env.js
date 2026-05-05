@@ -6,7 +6,7 @@ dotenv.config();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const projectRoot = path.resolve(__dirname, '../../..');
+const serverRoot = path.resolve(__dirname, '../..');
 
 export const env = {
   PORT: process.env.PORT || 3000,
@@ -20,8 +20,8 @@ export const env = {
   DB_PASSWORD: process.env.DB_PASSWORD || 'password',
   
   // JWT
-  JWT_PRIVATE_KEY_PATH: process.env.JWT_PRIVATE_KEY_PATH || path.join(projectRoot, 'server/src/tests/jwt.keys/private-es256.pem'),
-  JWT_PUBLIC_KEY_PATH: process.env.JWT_PUBLIC_KEY_PATH || path.join(projectRoot, 'server/src/tests/jwt.keys/public-es256.pem'),
+  JWT_PRIVATE_KEY_PATH: process.env.JWT_PRIVATE_KEY_PATH || path.join(serverRoot, 'src/tests/jwt.keys/private-es256.pem'),
+  JWT_PUBLIC_KEY_PATH: process.env.JWT_PUBLIC_KEY_PATH || path.join(serverRoot, 'src/tests/jwt.keys/public-es256.pem'),
   JWT_ALGORITHM: process.env.JWT_ALGORITHM || 'ES256',
   JWT_EXPIRES_IN: process.env.JWT_EXPIRES_IN || 3600, 
 };
