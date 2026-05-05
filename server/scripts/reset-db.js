@@ -7,8 +7,7 @@ async function resetDb() {
     // Drop tables if they exist (in reverse order due to foreign keys)
     await pool.query('DROP TABLE IF EXISTS messages CASCADE');
     await pool.query('DROP TABLE IF EXISTS users CASCADE');
-    await pool.query('DROP EXTENSION IF EXISTS "uuid-ossp"');
-    
+
     console.log('Database reset complete!');
     await pool.end();
   } catch (err) {

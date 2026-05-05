@@ -4,10 +4,10 @@ import { Sidebar } from '../components/Sidebar';
 
 export function ContactsPage({
   username,
+  email,
   contacts,
   onLogout,
   onSelectContact,
-  onAddContact,
   activeTab = 'messages',
   onTabChange
 }) {
@@ -20,7 +20,7 @@ export function ContactsPage({
       overflow: 'hidden'
     }}>
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} username={username} onLogout={onLogout} onTabChange={onTabChange} />
+      <Sidebar activeTab={activeTab} username={username} email={email} onLogout={onLogout} onTabChange={onTabChange} />
 
       {/* Panel */}
       <div style={{ width: '300px', flexShrink: 0 }}>
@@ -28,8 +28,6 @@ export function ContactsPage({
           <AllContactsList
             contacts={contacts}
             onSelectContact={onSelectContact}
-            onAddContact={onAddContact}
-            currentUsername={username}
             onTabChange={onTabChange}
           />
         ) : (

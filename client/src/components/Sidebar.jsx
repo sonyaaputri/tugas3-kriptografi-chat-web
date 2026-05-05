@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export function Sidebar({ activeTab = 'messages', onTabChange, username, onLogout }) {
+export function Sidebar({ activeTab = 'messages', onTabChange, username, email, onLogout }) {
   const [showMenu, setShowMenu] = useState(false);
 
   const btnStyle = (active) => ({
@@ -118,7 +118,9 @@ export function Sidebar({ activeTab = 'messages', onTabChange, username, onLogou
                   <p style={{ margin: 0, fontWeight: '600', fontSize: '14px', color: '#0F172A' }}>
                     {username}
                   </p>
-                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748B' }}>Online</p>
+                  <p style={{ margin: '2px 0 0', fontSize: '12px', color: '#64748B' }}>
+                    {email || 'Online'}
+                  </p>
                 </div>
                 <button
                   onClick={() => {

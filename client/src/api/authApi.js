@@ -6,6 +6,7 @@ const BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 /**
  * Melakukan register
  * @param {Object} payload
+ * @param {string} payload.username            : Nama tampilan pengguna
  * @param {string} payload.email               : Email pengguna
  * @param {string} payload.password            : Password plaintext -> hash
  * @param {string} payload.publicKey           : Public key (base64)
@@ -29,7 +30,7 @@ export async function register(payload) {
  * Melakukan login dan mendapatkan token JWT
  * @param {string} email
  * @param {string} password
- * @returns {{ token: string }}
+ * @returns {{ token: string, user: Object }}
  */
 export async function login(email, password) {
   const res = await fetch(`${BASE_URL}/api/auth/login`, {
@@ -41,4 +42,20 @@ export async function login(email, password) {
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || data.message || "Login failed");
   return data.data;  // Extract the data object from the response
+}
+
+export async function logout(token) {
+  if (!token) return;
+
+  const res = await fetch(`${BASE_URL}/api/auth/logout`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || data.message || "Logout failed");
+  return data.data;
 }

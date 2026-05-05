@@ -7,10 +7,13 @@
  * - Edge case: token invalid, signature salah, klaim expired, key mismatch, dll.
  */
 
-const path = require("path");
-const fs = require("fs");
-const { sign, verify } = require("../jwt-lib");
-const { JWTError } = require("../jwt-lib/../jwt-lib/errors");
+import path from "path";
+import fs from "fs";
+import { fileURLToPath } from "url";
+import { sign, verify } from "../jwt-lib/index.js";
+import { JWTError } from "../jwt-lib/errors.js";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // Load key pairs untuk testing
 const KEYS_DIR = path.join(__dirname, "jwt.keys");

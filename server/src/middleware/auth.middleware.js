@@ -1,9 +1,10 @@
 import { verify } from '../jwt-lib/index.js';
 import { sendError } from '../utils/response.js';
 import { env } from '../config/env.js';
+import pool from '../config/db.js';
 import fs from 'fs';
 
-export function authenticate(req, res, next) {
+export async function authenticate(req, res, next) {
   // Ambil token dari Authorization header: "Bearer <token>"
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -23,6 +24,10 @@ export function authenticate(req, res, next) {
 
     // Simpan info user di request object
     req.user = decoded.payload;
+    await pool.query(
+      'UPDATE users SET is_online = TRUE, last_seen = CURRENT_TIMESTAMP WHERE email = $1',
+      [req.user.email]
+    );
     next();
   } catch (err) {
     return sendError(res, err.message, 401);

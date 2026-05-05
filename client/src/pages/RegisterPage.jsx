@@ -3,6 +3,7 @@ import { ErrorMessage } from '../components/ErrorMessage';
 
 export function RegisterPage({ onRegister, onNavigateToLogin }) {
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -12,13 +13,18 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password.trim() || !confirmPassword.trim()) {
+    if (!username.trim() || !email.trim() || !password.trim() || !confirmPassword.trim()) {
       setError('Please fill in all fields');
       return;
     }
 
     if (username.trim().length < 3) {
       setError('Username must be at least 3 characters');
+      return;
+    }
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
+      setError('Please enter a valid email address');
       return;
     }
 
@@ -34,7 +40,7 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
 
     setLoading(true);
     try {
-      await onRegister(username.trim(), password);
+      await onRegister(username.trim(), email.trim(), password);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     } finally {
@@ -115,18 +121,32 @@ export function RegisterPage({ onRegister, onNavigateToLogin }) {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
           <div>
-            <label style={labelStyle}>Username</label>
+            <label style={labelStyle}>Name</label>
             <input
               type="text"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              placeholder="choose a username"
+              placeholder="Enter your name"
               disabled={loading}
               style={inputStyle}
               onFocus={e => e.target.style.borderColor = '#3B82F6'}
               onBlur={e => e.target.style.borderColor = '#E5E7EB'}
             />
             <p style={{ fontSize: '12px', color: '#9CA3AF', margin: '6px 0 0 0', textAlign: 'left' }}>At least 3 characters</p>
+          </div>
+
+          <div>
+            <label style={labelStyle}>Email</label>
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
+              disabled={loading}
+              style={inputStyle}
+              onFocus={e => e.target.style.borderColor = '#3B82F6'}
+              onBlur={e => e.target.style.borderColor = '#E5E7EB'}
+            />
           </div>
 
           <div>

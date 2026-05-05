@@ -12,7 +12,6 @@ export function ChatPage({
   onSendMessage,
   onLogout,
   onDecryptMessage,
-  onAddContact,
   activeTab = 'messages',
   onTabChange
 }) {
@@ -35,7 +34,7 @@ export function ChatPage({
       }
     };
     decryptMessages();
-  }, [messages]);
+  }, [messages, decryptedMessages, onDecryptMessage]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -48,7 +47,9 @@ export function ChatPage({
     try {
       await onSendMessage(messageText.trim());
       setMessageText('');
-    } catch {}
+    } catch (err) {
+      console.error('Failed to send message:', err);
+    }
     finally { setSendingMessage(false); }
   };
 
@@ -67,7 +68,7 @@ export function ChatPage({
       overflow: 'hidden'
     }}>
       {/* Sidebar */}
-      <Sidebar activeTab={activeTab} username={currentUser.username} onLogout={onLogout} onTabChange={onTabChange} />
+      <Sidebar activeTab={activeTab} username={currentUser.username} email={currentUser.email} onLogout={onLogout} onTabChange={onTabChange} />
 
       {/* Contact list panel */}
       <div style={{ width: '300px', flexShrink: 0 }}>
@@ -75,8 +76,6 @@ export function ChatPage({
           <AllContactsList
             contacts={contacts}
             onSelectContact={onSelectContact}
-            onAddContact={onAddContact}
-            currentUsername={currentUser.username}
             onTabChange={onTabChange}
           />
         ) : (
@@ -107,13 +106,20 @@ export function ChatPage({
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             fontSize: '15px', fontWeight: '600', color: '#475569', flexShrink: 0
           }}>
-            {(contact.email || contact.username || 'U').charAt(0).toUpperCase()}
+            {(contact.username || contact.email || 'U').charAt(0).toUpperCase()}
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
             <h2 style={{ margin: 0, fontSize: '15px', fontWeight: '600', color: '#0F172A' }}>
-              {contact.email || contact.username}
+              {contact.username || contact.email}
             </h2>
-            <p style={{ margin: 0, fontSize: '12px', color: '#22C55E', fontWeight: '500' }}>Online</p>
+            <p style={{
+              margin: 0,
+              fontSize: '12px',
+              color: contact.isOnline ? '#22C55E' : '#94A3B8',
+              fontWeight: '500'
+            }}>
+              {contact.isOnline ? 'Online' : 'Offline'}
+            </p>
           </div>
         </div>
 
@@ -130,8 +136,9 @@ export function ChatPage({
           ) : (
             messages.map(message => {
               const decryptedData = decryptedMessages.get(message.id);
-              const isSent = message.sender_email === currentUser.username;
-              const content = decryptedData?.content || message.ciphertext;
+              const senderEmail = message.senderEmail || message.sender_email;
+              const isSent = senderEmail === currentUser.email;
+              const content = decryptedData ? decryptedData.content : 'Decrypting...';
 
               return (
                 <div

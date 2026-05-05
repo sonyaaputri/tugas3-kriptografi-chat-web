@@ -11,11 +11,10 @@ const SALT_ROUNDS = 12; // cost factor — makin tinggi makin lambat, makin aman
 export async function hashPassword(plaintext) {
   const passwordHash = await bcrypt.hash(plaintext, SALT_ROUNDS);
   
-  // Salt ini untuk client-side KDF (derive AES key dari password)
-  // Beda dengan bcrypt salt!
-  const kdfSalt = crypto.randomBytes(32).toString('hex');
+  // Salt tambahan untuk metadata server. Bcrypt tetap punya salt internal sendiri.
+  const passwordSalt = crypto.randomBytes(32).toString('hex');
   
-  return { passwordHash, kdfSalt };
+  return { passwordHash, passwordSalt };
 }
 
 /**

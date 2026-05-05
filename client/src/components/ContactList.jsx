@@ -27,7 +27,7 @@ export function ContactList({
   const conversationContacts = contacts.filter(c => c.lastMessage || c.email === selectedContactId);
 
   const filtered = conversationContacts.filter(c =>
-    (c.email || c.username || '').toLowerCase().includes(searchQuery.toLowerCase())
+    `${c.username || ''} ${c.email || ''}`.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
@@ -82,7 +82,9 @@ export function ContactList({
         ) : (
           filtered.map(contact => {
             const isSelected = selectedContactId === contact.email;
-            const initial = (contact.email || contact.username || 'U').charAt(0).toUpperCase();
+            const displayName = contact.username || contact.email || 'Unknown';
+            const initial = displayName.charAt(0).toUpperCase();
+            const isOnline = contact.isOnline === true;
 
             return (
               <button
@@ -125,7 +127,7 @@ export function ContactList({
                     bottom: 1, right: 1,
                     width: '11px', height: '11px',
                     borderRadius: '50%',
-                    background: '#22C55E',
+                    background: isOnline ? '#22C55E' : '#EF4444',
                     border: '2px solid white'
                   }} />
                 </div>
@@ -138,7 +140,7 @@ export function ContactList({
                       color: isSelected ? '#FFFFFF' : '#0F172A',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                     }}>
-                      {contact.email || contact.username}
+                      {displayName}
                     </span>
                     {contact.lastMessageTime && (
                       <span style={{ fontSize: '12px', color: isSelected ? 'rgba(255,255,255,0.75)' : '#94A3B8', flexShrink: 0, marginLeft: '8px' }}>
@@ -152,7 +154,7 @@ export function ContactList({
                       color: isSelected ? 'rgba(255,255,255,0.75)' : '#64748B',
                       overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap'
                     }}>
-                      {contact.lastMessage}
+                      Encrypted message
                     </p>
                   )}
                 </div>

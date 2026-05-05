@@ -4,7 +4,14 @@ export async function saveMessage({ senderEmail, receiverEmail, ciphertext, iv, 
   const result = await pool.query(
     `INSERT INTO messages (sender_email, receiver_email, ciphertext, iv, mac)
      VALUES ($1, $2, $3, $4, $5)
-     RETURNING *`,
+     RETURNING
+       id,
+       sender_email as "senderEmail",
+       receiver_email as "receiverEmail",
+       ciphertext,
+       iv,
+       mac,
+       timestamp`,
     [senderEmail, receiverEmail, ciphertext, iv, mac || null]
   );
   return result.rows[0];
@@ -12,7 +19,15 @@ export async function saveMessage({ senderEmail, receiverEmail, ciphertext, iv, 
 
 export async function getMessages(userEmail, contactEmail) {
   const result = await pool.query(
-    `SELECT * FROM messages
+    `SELECT
+       id,
+       sender_email as "senderEmail",
+       receiver_email as "receiverEmail",
+       ciphertext,
+       iv,
+       mac,
+       timestamp
+     FROM messages
      WHERE 
        (sender_email = $1 AND receiver_email = $2)
        OR

@@ -6,8 +6,8 @@ import { Navigate } from 'react-router-dom';
  * @param {React.ReactNode} props.children
  */
 export default function ProtectedRoute({ children }) {
-  // Check if user token exists in localStorage
-  const token = localStorage.getItem('authToken');
+  // Check if user token exists in this browser tab session
+  const token = sessionStorage.getItem('authToken');
   
   if (!token) {
     return <Navigate to="/login" replace />;

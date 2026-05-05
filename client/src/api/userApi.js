@@ -14,7 +14,7 @@ function authHeaders(token) {
 /**
  * Mengambil daftar kontak
  * @param {string} token - JWT token
- * @returns {Array<{ email: string, publicKey: string }>}
+ * @returns {Array<{ username: string, email: string, publicKey: string }>}
  */
 export async function getContacts(token) {
   const res = await fetch(`${BASE_URL}/api/users/contacts`, {
@@ -30,7 +30,7 @@ export async function getContacts(token) {
  * Mengambil public key milik user berdasarkan email
  * @param {string} email
  * @param {string} token - JWT token
- * @returns {{ publicKey: string }}
+ * @returns {{ username: string, email: string, publicKey: string }}
  */
 export async function getPublicKey(email, token) {
   const res = await fetch(

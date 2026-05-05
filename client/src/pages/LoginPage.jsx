@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ErrorMessage } from '../components/ErrorMessage';
 
 export function LoginPage({ onLogin, onNavigateToRegister }) {
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
@@ -11,14 +11,14 @@ export function LoginPage({ onLogin, onNavigateToRegister }) {
     e.preventDefault();
     setError('');
 
-    if (!username.trim() || !password.trim()) {
+    if (!email.trim() || !password.trim()) {
       setError('Please fill in all fields');
       return;
     }
 
     setLoading(true);
     try {
-      await onLogin(username.trim(), password);
+      await onLogin(email.trim(), password);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
     } finally {
@@ -86,12 +86,12 @@ export function LoginPage({ onLogin, onNavigateToRegister }) {
               fontWeight: '500',
               color: '#374151',
               marginBottom: '8px'
-            }}>Username</label>
+            }}>Email</label>
             <input
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Enter your username"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="Enter your email"
               disabled={loading}
               style={{
                 width: '100%',

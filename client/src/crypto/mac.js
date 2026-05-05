@@ -30,12 +30,12 @@ import { bufferToBase64, base64ToBuffer } from "./encoding.js";
  * Menghitung HMAC-SHA-256 dari ciphertext
  *
  * @param {CryptoKey} hmacKey    - Kunci HMAC dari deriveHMACKey()
- * @param {string}    ciphertext - Ciphertext dalam format base64
+ * @param {string}    data       - Data yang diautentikasi
  * @returns {Promise<string>}    - MAC dalam format base64
  */
-export async function computeMAC(hmacKey, ciphertext) {
-  const data = base64ToBuffer(ciphertext);
-  const macBuffer = await crypto.subtle.sign("HMAC", hmacKey, data);
+export async function computeMAC(hmacKey, data) {
+  const encoded = new TextEncoder().encode(data);
+  const macBuffer = await crypto.subtle.sign("HMAC", hmacKey, encoded);
   return bufferToBase64(macBuffer);
 }
 
@@ -44,15 +44,15 @@ export async function computeMAC(hmacKey, ciphertext) {
  * Menggunakan crypto.subtle.verify yang aman terhadap timing attack
  *
  * @param {CryptoKey} hmacKey    - Kunci HMAC dari deriveHMACKey()
- * @param {string}    ciphertext - Ciphertext dalam format base64
+ * @param {string}    data       - Data yang diautentikasi
  * @param {string}    mac        - MAC yang akan diverifikasi (base64)
  * @returns {Promise<boolean>}   - true jika valid, false jika tidak
  */
-export async function verifyMAC(hmacKey, ciphertext, mac) {
+export async function verifyMAC(hmacKey, data, mac) {
   try {
-    const data      = base64ToBuffer(ciphertext);
+    const encoded   = new TextEncoder().encode(data);
     const macBuffer = base64ToBuffer(mac);
-    return await crypto.subtle.verify("HMAC", hmacKey, macBuffer, data);
+    return await crypto.subtle.verify("HMAC", hmacKey, macBuffer, encoded);
   } catch {
     // Jika format tidak valid (base64 rusak, dll), anggap MAC tidak valid
     return false;

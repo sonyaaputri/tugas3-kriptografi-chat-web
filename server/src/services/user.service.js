@@ -4,8 +4,15 @@ import pool from '../config/db.js';
 export async function getAllUsers(excludeEmail) {
   const result = await pool.query(
     `SELECT 
-      u.email, 
+      u.username,
+      u.email,
       u.public_key as "publicKey",
+      (
+        u.is_online = TRUE
+        AND u.last_seen IS NOT NULL
+        AND u.last_seen > CURRENT_TIMESTAMP - INTERVAL '10 seconds'
+      ) as "isOnline",
+      u.last_seen as "lastSeen",
       (
         SELECT ciphertext
         FROM messages
@@ -24,7 +31,7 @@ export async function getAllUsers(excludeEmail) {
       ) as "lastMessageTime"
     FROM users u
     WHERE u.email != $1
-    ORDER BY "lastMessageTime" DESC NULLS LAST, u.email`,
+    ORDER BY "lastMessageTime" DESC NULLS LAST, u.username, u.email`,
     [excludeEmail]
   );
   return result.rows;
@@ -33,7 +40,17 @@ export async function getAllUsers(excludeEmail) {
 // Ambil public key user spesifik (untuk key exchange ECDH)
 export async function getUserPublicKey(email) {
   const result = await pool.query(
-    `SELECT email, public_key as "publicKey" FROM users WHERE email = $1`,
+    `SELECT
+       username,
+       email,
+       public_key as "publicKey",
+       (
+         is_online = TRUE
+         AND last_seen IS NOT NULL
+         AND last_seen > CURRENT_TIMESTAMP - INTERVAL '10 seconds'
+       ) as "isOnline",
+       last_seen as "lastSeen"
+     FROM users WHERE email = $1`,
     [email]
   );
   if (result.rows.length === 0) throw new Error('User not found');

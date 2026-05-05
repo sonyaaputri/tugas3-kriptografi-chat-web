@@ -33,3 +33,13 @@ export async function login(req, res) {
     return sendError(res, 'Internal server error', 500);
   }
 }
+
+export async function logout(req, res) {
+  try {
+    await authService.logoutUser(req.user.email);
+    return sendSuccess(res, {}, 'Logout successful');
+  } catch (err) {
+    console.error(err);
+    return sendError(res, 'Internal server error', 500);
+  }
+}
