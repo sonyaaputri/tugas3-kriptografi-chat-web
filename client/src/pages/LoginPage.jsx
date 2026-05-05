@@ -81,6 +81,7 @@ export function LoginPage({ onLogin, onNavigateToRegister }) {
           <div>
             <label style={{
               display: 'block',
+              textAlign: 'left',
               fontSize: '14px',
               fontWeight: '500',
               color: '#374151',
@@ -112,6 +113,7 @@ export function LoginPage({ onLogin, onNavigateToRegister }) {
           <div>
             <label style={{
               display: 'block',
+              textAlign: 'left',
               fontSize: '14px',
               fontWeight: '500',
               color: '#374151',
