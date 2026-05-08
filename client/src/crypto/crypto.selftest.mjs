@@ -71,4 +71,19 @@ await assert.rejects(() =>
   )
 );
 
-console.log("Crypto self-test passed");
+const aliceAesKeyRaw = await crypto.subtle.exportKey("raw", aliceAesKey);
+const bobAesKeyRaw = await crypto.subtle.exportKey("raw", bobAesKey);
+
+console.log(
+  "Alice AES Key:",
+  Array.from(new Uint8Array(aliceAesKeyRaw))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+);
+
+console.log(
+  "Bob AES Key:",
+  Array.from(new Uint8Array(bobAesKeyRaw))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+);
