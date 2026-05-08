@@ -44,7 +44,7 @@ export async function deriveAESKey(sharedSecret) {
       name: "AES-GCM",
       length: 256,                // AES-256
     },
-    false,                        // tidak perlu extractable untuk kunci komunikasi
+    true,                        // tidak perlu extractable untuk kunci komunikasi
     ["encrypt", "decrypt"]
   );
 }
@@ -80,7 +80,7 @@ export async function deriveHMACKey(sharedSecret) {
       name: "HMAC",
       hash: "SHA-256",
     },
-    false,
+    true,
     ["sign", "verify"]
   );
 }

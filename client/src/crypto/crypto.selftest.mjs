@@ -28,6 +28,8 @@ const bobPrivate = await importPrivateKey(await exportPrivateKey(bob.privateKey)
 
 const aliceSecret = await computeSharedSecret(alicePrivate, bobPublic);
 const bobSecret = await computeSharedSecret(bobPrivate, alicePublic);
+console.log("Alice Shared Secret:", bufferToBase64(aliceSecret));
+console.log("Bob Shared Secret:  ", bufferToBase64(bobSecret));
 assert.equal(bufferToBase64(aliceSecret), bufferToBase64(bobSecret));
 
 const aliceAesKey = await deriveAESKey(aliceSecret);
@@ -71,4 +73,19 @@ await assert.rejects(() =>
   )
 );
 
-console.log("Crypto self-test passed");
+const aliceAesKeyRaw = await crypto.subtle.exportKey("raw", aliceAesKey);
+const bobAesKeyRaw = await crypto.subtle.exportKey("raw", bobAesKey);
+
+console.log(
+  "Alice AES Key:",
+  Array.from(new Uint8Array(aliceAesKeyRaw))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+);
+
+console.log(
+  "Bob AES Key:",
+  Array.from(new Uint8Array(bobAesKeyRaw))
+    .map(b => b.toString(16).padStart(2, "0"))
+    .join("")
+);
