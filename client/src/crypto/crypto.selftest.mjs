@@ -28,6 +28,8 @@ const bobPrivate = await importPrivateKey(await exportPrivateKey(bob.privateKey)
 
 const aliceSecret = await computeSharedSecret(alicePrivate, bobPublic);
 const bobSecret = await computeSharedSecret(bobPrivate, alicePublic);
+console.log("Alice Shared Secret:", bufferToBase64(aliceSecret));
+console.log("Bob Shared Secret:  ", bufferToBase64(bobSecret));
 assert.equal(bufferToBase64(aliceSecret), bufferToBase64(bobSecret));
 
 const aliceAesKey = await deriveAESKey(aliceSecret);
